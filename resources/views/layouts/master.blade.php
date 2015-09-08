@@ -10,16 +10,40 @@
     <meta name="author" content="">
 
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="{{ asset("css/bootstrap.min.css") }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
     @yield('head')
+
+    <!-- app constants -->
+    <script>
+        var App = <?php echo json_encode(array(
+            'baseUrl' => url(),
+            'commentUrl' => url("comment"),
+            'token' => csrf_token()
+        )); ?>;
+
+        $(initPage);
+
+        function initPage() {
+            $.ajaxSetup(
+                {
+                    headers:
+                    {
+                        'X-CSRF-TOKEN': '<?php echo csrf_token(); ?>'
+                    }
+            });
+        }
+
+    </script>
 </head>
 
 <body>
+
+
 @yield('body')
 
 <!-- Bootstrap core JavaScript

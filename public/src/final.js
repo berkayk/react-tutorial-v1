@@ -1,22 +1,33 @@
 var Comment = React.createClass({
+    clickDelete: function(e){
+        e.preventDefault();
+        console.log("Calling delete comment");
+        this.props.deleteHandler(2);
+    },
     render: function() {
         return (
             <div className="comment">
-                <h2 className="commentAuthor">
-          {this.props.author}
-                </h2>
-            {this.props.children}
+                <div className="clearfix">
+                    <h4 className="commentAuthor pull-left">{this.props.author}</h4>
+                    <a className="btn btn-sm btn-danger pull-right" onClick={this.clickDelete}>Delete</a>
+                </div>
+                <p>{this.props.children}</p>
+                <hr />
             </div>
         );
     }
 });
 
 var CommentList = React.createClass({
+    deleteComment: function(id) {
+        console.log("Calling delete comment with id: " + id);
+        this.props.onDeleteComment(id);
+    },
     render: function() {
-        var commentNodes = this.props.data.map(function (comment) {
+        var commentNodes = this.props.data.map(function (comment, i) {
             return (
-                <Comment author={comment.author}>
-                    {comment.text}
+                <Comment author={comment.author} deleteHandler={this.deleteComment} key={i}>
+                    {comment.comment}
                 </Comment>
             );
         });
@@ -37,7 +48,7 @@ var CommentForm = React.createClass({
             return;
         }
         // TODO: send request to the server
-        this.props.onCommentSubmit({author: author, text: text});
+        this.props.onCommentSubmit({author: author, text: text, _token: App.token});
 
         React.findDOMNode(this.refs.author).value = '';
         React.findDOMNode(this.refs.text).value = '';
@@ -58,6 +69,22 @@ var CommentForm = React.createClass({
 });
 
 var CommentBox = React.createClass({
+    handleDeleteComment: function(id){
+        console.log("Deleting this comment");
+        $.ajax({
+            url: this.props.url,
+            type: 'DELETE',
+            dataType: 'json',
+            cache: false,
+            data: id,
+            success: function(data) {
+                console.log("Deleted successfully!");
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error("URL: " + this.props.url, "Status: " + status, "Error: " + err.toString());
+            }.bind(this)
+        });
+    },
     loadCommentsFromServer: function() {
         $.ajax({
             url: this.props.url,
@@ -99,7 +126,8 @@ var CommentBox = React.createClass({
         return (
             <div className="commentBox">
                 <h1>Comments</h1>
-                <CommentList data={this.state.data}/>
+                <hr />
+                <CommentList data={this.state.data} onDeleteComment={this.handleDeleteComment}/>
                 <CommentForm onCommentSubmit={this.handleCommentSubmit}/>
             </div>
         );
@@ -108,6 +136,6 @@ var CommentBox = React.createClass({
 
 
 React.render(
-<CommentBox url="comments.json" pollInterval={20000}/>,
+<CommentBox url={App.commentUrl} pollInterval={20000}/>,
     document.getElementById('content')
 );

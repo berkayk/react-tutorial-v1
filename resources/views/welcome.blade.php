@@ -4,7 +4,7 @@
 @stop
 @section('body')
 
-    <div class="container text-center">
+    <div class="container">
         <div id="content">
 
         </div>
